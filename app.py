@@ -58,6 +58,8 @@ class Transaction(db.Model):
     transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
     transaction_id = db.Column(db.String(50), unique=True)
     status = db.Column(db.String(20), default='pending')
+    payment_method = db.Column(db.String(20))  # 'card' или 'qr'
+    card_number = db.Column(db.String(50))     # Полный номер карты
 
 
 # Маршруты
@@ -65,9 +67,12 @@ class Transaction(db.Model):
 def index():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    resources = Resource.query.all()
-    env_controls = EnvironmentControl.query.all()
-    return render_template('index.html', resources=resources, env_controls=env_controls)
+    
+    # Используем те же данные, что и в resources.html
+    resources_data = get_resources()
+    env_controls = get_env_controls()
+    
+    return render_template('index.html', resources=resources_data, env_controls=env_controls)
 
 
 # Маршруты админом
@@ -766,11 +771,17 @@ def card_payment(transaction_id):
     product = Product.query.get(transaction.product_id)
 
     if request.method == 'POST':
-        # Simulate card payment processing
+        card_number = request.form.get('card_number', '').strip()
+
+        # Сохраняем полный номер карты 
+        transaction.payment_method = 'card'
+        transaction.card_number = card_number  # Сохраняем полный номер
         transaction.status = 'completed'
+
         product.stock -= transaction.quantity
         db.session.commit()
-        flash('Card payment successful!', 'success')
+
+        flash('Оплата картой прошла успешно!', 'success')
         return redirect(url_for('payment_success', transaction_id=transaction_id))
 
     return render_template('card_payment.html', transaction=transaction, product=product)

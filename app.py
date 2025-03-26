@@ -139,6 +139,39 @@ def admin_transactions():
                            products=products)
 
 
+@app.route('/admin/transactions/update_status', methods=['POST'])
+def admin_update_transaction_status():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # Проверяем, является ли пользователь администратором
+    admin_user = User.query.get(session['user_id'])
+    if not admin_user or admin_user.role != 'admin':
+        flash('У вас нет доступа к админской панели', 'danger')
+        return redirect(url_for('index'))
+
+    transaction_id = request.form.get('transaction_id')
+    new_status = request.form.get('status')
+
+    if not transaction_id or not new_status:
+        flash('Не указан ID транзакции или новый статус', 'danger')
+        return redirect(url_for('admin_transactions'))
+
+    transaction = Transaction.query.get(transaction_id)
+    if transaction:
+        try:
+            transaction.status = new_status
+            db.session.commit()
+            flash('Статус транзакции успешно обновлен', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении статуса транзакции: {str(e)}', 'danger')
+    else:
+        flash('Транзакция не найдена', 'danger')
+
+    return redirect(url_for('admin_transactions'))
+
+
 @app.route('/admin/products')
 def admin_products():
     if 'user_id' not in session:

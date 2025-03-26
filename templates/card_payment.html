@@ -10,30 +10,29 @@
                 <h5 class="mb-0">Оплата банковской картой</h5>
             </div>
             <div class="card-body">
-               <!-- <div class="alert alert-info">
-                    <p><strong>Note:</strong> This is a simulation for educational purposes. No real payment will be processed.</p>
-                </div> -->
-
                 <form method="POST" action="{{ url_for('card_payment', transaction_id=transaction.transaction_id) }}" id="payment-form">
                     <div class="mb-3">
                         <label for="card-number" class="form-label">Номер карты</label>
-                        <input type="text" class="form-control" id="card-number" placeholder="1234 5678 9012 3456" required>
+                        <input type="text" class="form-control" id="card-number" name="card_number"
+                               placeholder="Введите номер карты (до 50 символов)" maxlength="50" required>
+                        <div class="form-text"><!-- Можно вводить буквы, цифры и символы (максимум 50)--></div>
                     </div>
 
+                    <!-- Остальные поля формы остаются без изменений -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="expiry-date" class="form-label">Срок</label>
-                            <input type="text" class="form-control" id="expiry-date" placeholder="MM/YY" required>
+                            <input type="text" class="form-control" id="expiry-date" name="expiry_date" placeholder="MM/YY" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="cvv" class="form-label">CVV</label>
-                            <input type="text" class="form-control" id="cvv" placeholder="123" required>
+                            <input type="text" class="form-control" id="cvv" name="cvv" placeholder="123" required>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="cardholder-name" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="cardholder-name" placeholder="Иван Иванов" required>
+                        <input type="text" class="form-control" id="cardholder-name" name="cardholder_name" placeholder="Иван Иванов" required>
                     </div>
 
                     <div class="d-grid">
@@ -41,6 +40,7 @@
                     </div>
                 </form>
 
+                <!-- Остальная часть шаблона без изменений -->
                 <div class="mt-4">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Товар:</span>
@@ -55,7 +55,7 @@
                         <span>{{ transaction.total_price }} Мемкоин</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span>ID транзакциии</span>
+                        <span>ID транзакции</span>
                         <span>{{ transaction.transaction_id }}</span>
                     </div>
                 </div>
@@ -71,35 +71,25 @@
         const form = document.getElementById('payment-form');
 
         form.addEventListener('submit', function(event) {
-            // Simulate payment processing
             const loadingBtn = document.querySelector('button[type="submit"]');
-            loadingBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            loadingBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Обработка...';
             loadingBtn.disabled = true;
 
-            // This would normally validate the card details
-            // For this simulation, we just submit the form after a delay
             setTimeout(function() {
                 form.submit();
             }, 2000);
         });
 
-        // Format card number with spaces
+        // Обработчик для номера карты (разрешаем любые символы)
         const cardNumberInput = document.getElementById('card-number');
         cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-            let formattedValue = '';
-
-            for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formattedValue += ' ';
-                }
-                formattedValue += value[i];
+            // Просто ограничиваем длину до 50 символов
+            if (e.target.value.length > 50) {
+                e.target.value = e.target.value.substring(0, 50);
             }
-
-            e.target.value = formattedValue;
         });
 
-        // Format expiry date
+        // Остальные обработчики без изменений
         const expiryInput = document.getElementById('expiry-date');
         expiryInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
@@ -113,3 +103,7 @@
     });
 </script>
 {% endblock %}
+
+
+
+

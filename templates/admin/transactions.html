@@ -94,7 +94,8 @@
                                                 <p><strong>Сумма:</strong> {{ transaction.total_price }} Credits</p>
                                             </div>
 
-                                            <form method="POST" action="#">
+                                            <form method="POST" action="{{ url_for('admin_update_transaction_status') }}">
+                                                <input type="hidden" name="transaction_id" value="{{ transaction.id }}">
                                                 <div class="mb-3">
                                                     <label for="status" class="form-label">Изменить статус</label>
                                                     <select class="form-select" id="status" name="status">

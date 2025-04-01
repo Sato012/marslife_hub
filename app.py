@@ -4,14 +4,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import uuid
 from datetime import datetime
+from config import Config  # Импортируем конфиг
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'marslifehub-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:5432@localhost/kuxa' 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)  # Загружаем конфигурацию
 db = SQLAlchemy(app)
 
-
+with app.app_context():
+    db.create_all()
 # Database Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
